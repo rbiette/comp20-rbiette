@@ -1,0 +1,97 @@
+<!--
+
+	
+	MY username: dxBYx83s
+	cd desktop/School/College/Junior/"Comp 20"/comp20-rbiette/landmarks
+	KEY: AIzaSyCmK2muARSuCGRnKpIsuo8uIttRY5Btjfg
+	
+	- make the page a map (done)
+
+	- retreive location of me by navigator.geolocation (done)
+
+	- send location to datastore
+
+	- retrieve locations of other people/landmarks within a mile
+	
+	- display people's locations with unique marker
+		-on click -> display location and login
+	- display landmarks on map with unique marker
+		- on click -> landmark details will pop up
+	- displays my location on the map with a different image
+		- on click -> display closest landmark name
+		- make a polyline to that landmark 
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href= "mapstyle.css"/>
+    <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 42.406, lng: -71.116},
+          zoom: 14
+        });
+      }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmK2muARSuCGRnKpIsuo8uIttRY5Btjfg"
+    async defer></script>
+<!-- get location -->
+    <script>
+    	var myLat = -9999;
+    	var myLong = -9999;
+    	function getLocation() {
+    			navigator.geolocation.getCurrentPosition(function(position) {
+    				myLat = position.coords.latitude;
+    				myLong = position.coords.longitude;
+    				loc = document.getElementById("location");
+
+            loc.innerHTML = '<p>Location is ' + myLat + ", " + myLong + "</p>";
+
+  //Make info window for me
+            var infoWindow = new google.maps.InfoWindow({
+              content: "<p>Login: dxBYx83s</p>"
+            });
+  //Make marker for me(NEED TO ADD CLOSEST LANDMARK TO ME!!!)
+            var image = "Mark_er.png"; //Hee hee it's "Mark" Wahlberg
+            var marker = new google.maps.Marker({
+              position: {lat: myLat, lng: myLong},
+              map: map,
+              icon: image
+            }); 
+            marker.addListener("click", function() {
+              infoWindow.open(map, marker);
+            });
+    			})
+    	}
+    </script>
+
+<!--Send data-->
+    <script>
+     function sendData() {
+      request = new XMLHttpRequest();
+      request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation/", true);
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        request.onreadystatechange = function() {
+          if(request.readyState == 4 && request.status == 200) {
+            alert(request.responseText);
+          }
+        }
+        request.send("login=dxBYx83s&lat=" + myLat + "&lng=" + myLong +"");
+     } 
+    </script>
+    
+  </head>
+
+
+  <body onload="getLocation(), initMap(), sendData()">
+    <div id="map"></div>
+    <div id="location">LOCATION IS...</div>
+
+
+  </body>
+</html>
