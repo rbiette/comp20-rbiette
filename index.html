@@ -40,12 +40,14 @@
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmK2muARSuCGRnKpIsuo8uIttRY5Btjfg"
     async defer></script>
+
 <!-- get location -->
     <script>
     	var myLat = -9999;
     	var myLong = -9999;
     	function getLocation() {
-    			navigator.geolocation.getCurrentPosition(function(position) {
+    			if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
     				myLat = position.coords.latitude;
     				myLong = position.coords.longitude;
     				loc = document.getElementById("location");
@@ -67,8 +69,15 @@
               infoWindow.open(map, marker);
             });
     			})
+        }
+        else
+          alert("Oh no! Geolocation is not supported on your browser");
     	}
+
+console.log("lat is" + myLat + "right now");
+    
     </script>
+
 
 <!--Send data-->
     <script>
@@ -78,9 +87,12 @@
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         request.onreadystatechange = function() {
           if(request.readyState == 4 && request.status == 200) {
+            console.log("Here I am");
             alert(request.responseText);
           }
         }
+        console.log("login=dxBYx83s&lat=" + myLat + "&lng=" + myLong +"");
+
         request.send("login=dxBYx83s&lat=" + myLat + "&lng=" + myLong +"");
      } 
     </script>
@@ -91,7 +103,6 @@
   <body onload="getLocation(), initMap(), sendData()">
     <div id="map"></div>
     <div id="location">LOCATION IS...</div>
-
 
   </body>
 </html>
