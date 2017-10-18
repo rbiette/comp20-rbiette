@@ -19,6 +19,7 @@
 		- on click -> landmark details will pop up
 	- displays my location on the map with a different image(done)
 		- on click -> display closest landmark name
+
 		- make a polyline to that landmark 
 
 
@@ -72,10 +73,10 @@ function distance(lat2,lon2,lat1,lon1){
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
   var d = (R * c)/1.609; //where d is distance in miles
 }
+console.log(distance(myLat,myLong,myLat,myLong));
 
 
 //Send data
-
      function sendData() {
       request = new XMLHttpRequest();
       request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation/", true);
@@ -88,7 +89,7 @@ function distance(lat2,lon2,lat1,lon1){
 console.log(cleanData);
 
             //Make marker for me(NEED TO ADD CLOSEST LANDMARK TO ME!!!)
-            var image1 = "Mark_er.png"; //Hee hee it's "Mark" Wahlberg
+            var image1 = "mark_er1.png"; //Hee hee it's "Mark" Wahlberg
             var marker1 = new google.maps.Marker({
               position: {lat: myLat, lng: myLong},
               map: map,
@@ -106,40 +107,43 @@ console.log(cleanData);
 
             //people markers
             for (var i = 0; i < cleanData.people.length; i++) {
-
+var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + "" + "</p>";
               //make a marker for people
               var image2 = "mark_er2.png"; //Hee hee it's "Mark" Zuckerberg 
               marker2 = new google.maps.Marker({
               position: {lat: cleanData.people[i].lat, lng: cleanData.people[i].lng},
               map: map,
+              content: contentString1,
               icon: image2
             }); 
-//infowindow
-              var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + "" + "</p>";
 
-              var infoWindow1 = new google.maps.InfoWindow()  
+              var infoWindow1 = new google.maps.InfoWindow() 
               google.maps.event.addListener(marker2,'click', function() { 
-                infoWindow.setContent(contentString1);
+                infoWindow.setContent(this.content);
                 infoWindow.open(map, this);
               });
            }
 
-            for (var j = 0; j < cleanData.landmarks.length; j++){
-//make marker for landmarks NEED TO ADD if statement to check distance from me
-              var image3 = "mark_er3.png"; //Hee hee it's mark ruffalo
-              var marker3 = new google.maps.Marker({
-              position: {lat: cleanData.landmarks[j].geometry.coordinates[1], lng: cleanData.landmarks[j].geometry.coordinates[0]},
-              map: map,
-              icon: image3
-            });
 
+
+            for (var j = 0; j < cleanData.landmarks.length; j++){
               var contentString2 = "<h4>Site = " + cleanData.landmarks[j].properties.Location_Name + "</h4>" + cleanData.landmarks[j].properties.Details;
 
-              var infoWindow = new google.maps.InfoWindow()
-              google.maps.event.addListener(marker3,'click', function() { 
-                infoWindow.setContent(contentString2);
-                infoWindow.open(map, this);
-              });    
+//              if (distance(myLat,myLong,cleanData.landmarks[j].geometry.coordinates[1],cleanData.landmarks[j].geometry.coordinates[0]) < 1){
+                var image3 = "mark_er3.png"; //Hee hee it's mark ruffalo
+                var marker3 = new google.maps.Marker({
+                position: {lat: cleanData.landmarks[j].geometry.coordinates[1], lng: cleanData.landmarks[j].geometry.coordinates[0]},
+                map: map,
+                content: contentString2,
+                icon: image3
+                });
+
+                var infoWindow = new google.maps.InfoWindow()
+                google.maps.event.addListener(marker3,'click', function() { 
+                  infoWindow.setContent(this.content);
+                  infoWindow.open(map, this);
+                });   
+//              } 
           }
         }
       }
