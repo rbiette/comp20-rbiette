@@ -20,6 +20,9 @@
 	- displays my location on the map with a different image
 		- on click -> display closest landmark name
 		- make a polyline to that landmark 
+
+
+    "<div>id=title</div><br>" + "<div>id=website</div><br>" + "<div>id=login</div><br>" + "<div>id=distance</div><br>";
 -->
 <!DOCTYPE html>
 <html>
@@ -28,6 +31,7 @@
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href= "mapstyle.css"/>
+
     <script>
       var map;
       function initMap() {
@@ -36,13 +40,9 @@
           zoom: 14
         });
       }
-    </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmK2muARSuCGRnKpIsuo8uIttRY5Btjfg"
-    async defer></script>
+// get location 
 
-<!-- get location -->
-    <script>
     	var myLat = -9999;
     	var myLong = -9999;
     	function getLocation() {
@@ -54,45 +54,103 @@
 
             loc.innerHTML = '<p>Location is ' + myLat + ", " + myLong + "</p>";
             sendData();
-
-  //Make info window for me
-            var infoWindow = new google.maps.InfoWindow({
-              content: "<p>Login: dxBYx83s</p>"
-            });
-  //Make marker for me(NEED TO ADD CLOSEST LANDMARK TO ME!!!)
-            var image = "Mark_er.png"; //Hee hee it's "Mark" Wahlberg
-            var marker1 = new google.maps.Marker({
-              position: {lat: myLat, lng: myLong},
-              map: map,
-              icon: image
-            }); 
-            marker1.addListener("click", function() {
-              infoWindow.open(map, marker1);
-            });
     			})
         }
         else
           alert("Oh no! Geolocation is not supported on your browser");
     	}
-    </script>
 
+//Send data
 
-<!--Send data-->
-    <script>
      function sendData() {
       request = new XMLHttpRequest();
       request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation/", true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         request.onreadystatechange = function() {
           if(request.readyState == 4 && request.status == 200) {
-            rawData = request.responseText;
-            console.log(request.responseText);
-            alert(request.responseText);
+            var rawData = request.responseText;
+            var cleanData = JSON.parse(rawData);
+console.log(cleanData);
+
+            //Make marker for me(NEED TO ADD CLOSEST LANDMARK TO ME!!!)
+            var image1 = "Mark_er.png"; //Hee hee it's "Mark" Wahlberg
+console.log(" my lat is" + myLat + "and long is" + myLong);
+            var marker1 = new google.maps.Marker({
+              position: {lat: myLat, lng: myLong},
+              map: map,
+              icon: image1
+            }); 
+
+//Make info window for me
+            var contentString = "<h3>login = dxBYx83s</h3>" + "<p>Closest Landmark: </p>" + "<p>Distance = </p>";
+//Come back for calculating nearest landmark and putting it in here
+
+            var infoWindow = new google.maps.InfoWindow()
+
+
+            google.maps.event.addListener(marker1,'click', (function(marker,contentString,infoWindow){ 
+              return function() {
+              infoWindow.setContent(contentString);
+              infoWindow.open(map,marker1);
+              };
+              })(marker1,contentString,infoWindow));
+/*
+            //people markers
+            for (var i = 0; i < cleanData.people.length; i++) {
+
+              //make a marker for people
+              var image2 = "mark_er2.png"; //Hee hee it's "Mark" Zuckerberg 
+              marker2 = new google.maps.Marker({
+              position: {lat: cleanData.people[i].lat, lng: cleanData.people[i].lng},
+              map: map,
+              icon: image2
+            }); 
+//infowindow
+              var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + "Calculation here" + "</p>";
+              var infoWindow = new google.maps.InfoWindow({
+              content: contentString1
+            });
+
+            google.maps.event.addListener(marker2,'click', (function(marker,contentString1,infoWindow){ 
+              return function() {
+              infoWindow.setContent(contentString1);
+              infoWindow.open(map,marker2);
+              };
+              })(marker,contentString1,infoWindow));
+            }
+
+            for (var j = 0; j < cleanData.landmarks.length; j++){
+              //make marker for landmarks
+              var image3 = "mark_er3.png"; //Hee hee it's mark ruffalo
+              var marker3 = new google.maps.Marker({
+              position: {lat: cleanData.landmarks[j].geometry.coordinates[1], lng: cleanData.landmarks[j].geometry.coordinates[0]},
+              map: map,
+              icon: image3
+            });
+
+              var contentString2 = "<h4>Site = " + cleanData.landmarks[j].properties.Location_Name + "</h4>" + cleanData.landmarks[j].properties.details;
+
+              var infoWindow = new google.maps.InfoWindow({
+              content: contentString1
+            });
+
+            google.maps.event.addListener(marker3,'click', (function(marker,contentString2,infoWindow){ 
+              return function() {
+              infoWindow.setContent(contentString2);
+              infoWindow.open(map,marker3);
+              };
+              })(marker3,contentString1,infoWindow));
+            }*/
           }
         }
         request.send("login=dxBYx83s&lat=" + myLat + "&lng=" + myLong +"");
      } 
+
+
+
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmK2muARSuCGRnKpIsuo8uIttRY5Btjfg"
+    async defer></script>
     
   </head>
 
