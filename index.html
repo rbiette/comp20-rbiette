@@ -9,15 +9,15 @@
 
 	- retreive location of me by navigator.geolocation (done)
 
-	- send location to datastore
+	- send location to datastore(done)
 
 	- retrieve locations of other people/landmarks within a mile
 	
-	- display people's locations with unique marker
+	- display people's locations with unique marker(done)
 		-on click -> display location and login
-	- display landmarks on map with unique marker
+	- display landmarks on map with unique marker(done)
 		- on click -> landmark details will pop up
-	- displays my location on the map with a different image
+	- displays my location on the map with a different image(done)
 		- on click -> display closest landmark name
 		- make a polyline to that landmark 
 
@@ -50,15 +50,29 @@
             navigator.geolocation.getCurrentPosition(function(position) {
     				myLat = position.coords.latitude;
     				myLong = position.coords.longitude;
-    				loc = document.getElementById("location");
-
-            loc.innerHTML = '<p>Location is ' + myLat + ", " + myLong + "</p>";
             sendData();
     			})
         }
         else
           alert("Oh no! Geolocation is not supported on your browser");
     	}
+//distance function (given two points, return distance in miles)
+function distance(lat2,lon2,lat1,lon1){
+  Number.prototype.toRad = function() {
+   return this * Math.PI / 180;
+}
+  var R = 6371; // km 
+  var x1 = lat2-lat1;
+  var dLat = x1.toRad();  
+  var x2 = lon2-lon1;
+  var dLon = x2.toRad();  
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);  
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = (R * c)/1.609; //where d is distance in miles
+}
+
 
 //Send data
 
@@ -70,31 +84,26 @@
           if(request.readyState == 4 && request.status == 200) {
             var rawData = request.responseText;
             var cleanData = JSON.parse(rawData);
+
 console.log(cleanData);
 
             //Make marker for me(NEED TO ADD CLOSEST LANDMARK TO ME!!!)
             var image1 = "Mark_er.png"; //Hee hee it's "Mark" Wahlberg
-console.log(" my lat is" + myLat + "and long is" + myLong);
             var marker1 = new google.maps.Marker({
               position: {lat: myLat, lng: myLong},
               map: map,
               icon: image1
             }); 
-
 //Make info window for me
             var contentString = "<h3>login = dxBYx83s</h3>" + "<p>Closest Landmark: </p>" + "<p>Distance = </p>";
 //Come back for calculating nearest landmark and putting it in here
-
             var infoWindow = new google.maps.InfoWindow()
-
-
-            google.maps.event.addListener(marker1,'click', (function(marker,contentString,infoWindow){ 
-              return function() {
+            google.maps.event.addListener(marker1,'click', function() { 
               infoWindow.setContent(contentString);
-              infoWindow.open(map,marker1);
-              };
-              })(marker1,contentString,infoWindow));
-/*
+              infoWindow.open(map, this);
+              });
+   
+
             //people markers
             for (var i = 0; i < cleanData.people.length; i++) {
 
@@ -106,21 +115,17 @@ console.log(" my lat is" + myLat + "and long is" + myLong);
               icon: image2
             }); 
 //infowindow
-              var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + "Calculation here" + "</p>";
-              var infoWindow = new google.maps.InfoWindow({
-              content: contentString1
-            });
+              var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + "" + "</p>";
 
-            google.maps.event.addListener(marker2,'click', (function(marker,contentString1,infoWindow){ 
-              return function() {
-              infoWindow.setContent(contentString1);
-              infoWindow.open(map,marker2);
-              };
-              })(marker,contentString1,infoWindow));
-            }
+              var infoWindow1 = new google.maps.InfoWindow()  
+              google.maps.event.addListener(marker2,'click', function() { 
+                infoWindow.setContent(contentString1);
+                infoWindow.open(map, this);
+              });
+           }
 
             for (var j = 0; j < cleanData.landmarks.length; j++){
-              //make marker for landmarks
+//make marker for landmarks NEED TO ADD if statement to check distance from me
               var image3 = "mark_er3.png"; //Hee hee it's mark ruffalo
               var marker3 = new google.maps.Marker({
               position: {lat: cleanData.landmarks[j].geometry.coordinates[1], lng: cleanData.landmarks[j].geometry.coordinates[0]},
@@ -128,27 +133,24 @@ console.log(" my lat is" + myLat + "and long is" + myLong);
               icon: image3
             });
 
-              var contentString2 = "<h4>Site = " + cleanData.landmarks[j].properties.Location_Name + "</h4>" + cleanData.landmarks[j].properties.details;
+              var contentString2 = "<h4>Site = " + cleanData.landmarks[j].properties.Location_Name + "</h4>" + cleanData.landmarks[j].properties.Details;
 
-              var infoWindow = new google.maps.InfoWindow({
-              content: contentString1
-            });
-
-            google.maps.event.addListener(marker3,'click', (function(marker,contentString2,infoWindow){ 
-              return function() {
-              infoWindow.setContent(contentString2);
-              infoWindow.open(map,marker3);
-              };
-              })(marker3,contentString1,infoWindow));
-            }*/
+              var infoWindow = new google.maps.InfoWindow()
+              google.maps.event.addListener(marker3,'click', function() { 
+                infoWindow.setContent(contentString2);
+                infoWindow.open(map, this);
+              });    
           }
         }
+      }
+
         request.send("login=dxBYx83s&lat=" + myLat + "&lng=" + myLong +"");
      } 
 
 
 
     </script>
+
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmK2muARSuCGRnKpIsuo8uIttRY5Btjfg"
     async defer></script>
     
