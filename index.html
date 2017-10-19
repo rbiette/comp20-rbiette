@@ -57,6 +57,21 @@
         else
           alert("Oh no! Geolocation is not supported on your browser");
     	}
+
+
+/*function drawPoly(){
+  var path = new google.maps.Polyline({
+    path: [{lat: ?? lng;??},{lat: ??lng: ??}],
+    geodesic: true,
+    strokeColor: '00FF00',
+    strokeOpacity; 1.0,
+    strokeWeight: 2
+  });
+  path.setMap(map);
+}*/
+
+
+
 //distance function (given two points, return distance in miles)
 function distance(lat2,lon2,lat1,lon1){
   Number.prototype.toRad = function() {
@@ -72,8 +87,10 @@ function distance(lat2,lon2,lat1,lon1){
                 Math.sin(dLon/2) * Math.sin(dLon/2);  
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
   var d = (R * c)/1.609; //where d is distance in miles
+  return d;
 }
-console.log(distance(myLat,myLong,myLat,myLong));
+
+
 
 
 //Send data
@@ -96,7 +113,7 @@ console.log(cleanData);
               icon: image1
             }); 
 //Make info window for me
-            var contentString = "<h3>login = dxBYx83s</h3>" + "<p>Closest Landmark: </p>" + "<p>Distance = </p>";
+            var contentString = "<h3>login = dxBYx83s</h3>" + "<p>Closest Landmark: </p>" + cleanData.landmarks[0].properties.Location_Name + "<p>Distance = " + distance(myLat,myLong,cleanData.landmarks[0].geometry.coordinates[1],cleanData.landmarks[0].geometry.coordinates[0]) + "</p>";
 //Come back for calculating nearest landmark and putting it in here
             var infoWindow = new google.maps.InfoWindow()
             google.maps.event.addListener(marker1,'click', function() { 
@@ -107,7 +124,7 @@ console.log(cleanData);
 
             //people markers
             for (var i = 0; i < cleanData.people.length; i++) {
-var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + "" + "</p>";
+              var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>Distance from me = " + distance(myLat,myLong,cleanData.people[i].lat,cleanData.people[i].lng) + "</p>";
               //make a marker for people
               var image2 = "mark_er2.png"; //Hee hee it's "Mark" Zuckerberg 
               marker2 = new google.maps.Marker({
@@ -125,11 +142,25 @@ var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>
            }
 
 
+var closestLand = 100;
+var landmarkNumber;
 
             for (var j = 0; j < cleanData.landmarks.length; j++){
               var contentString2 = "<h4>Site = " + cleanData.landmarks[j].properties.Location_Name + "</h4>" + cleanData.landmarks[j].properties.Details;
 
-//              if (distance(myLat,myLong,cleanData.landmarks[j].geometry.coordinates[1],cleanData.landmarks[j].geometry.coordinates[0]) < 1){
+              var dist = distance(myLat,myLong,cleanData.landmarks[j].geometry.coordinates[1],cleanData.landmarks[j].geometry.coordinates[0]);
+
+//console.log(dist);
+
+              if (dist < 1){
+
+                //find closest landmark
+                if (dist < closestLand) {
+                  closestLand = dist;
+                  landmarkNumber = j;
+                }
+
+
                 var image3 = "mark_er3.png"; //Hee hee it's mark ruffalo
                 var marker3 = new google.maps.Marker({
                 position: {lat: cleanData.landmarks[j].geometry.coordinates[1], lng: cleanData.landmarks[j].geometry.coordinates[0]},
@@ -143,7 +174,7 @@ var contentString1 = "<h4>login = " + cleanData.people[i].login + "</h4>" + "<p>
                   infoWindow.setContent(this.content);
                   infoWindow.open(map, this);
                 });   
-//              } 
+              } 
           }
         }
       }
